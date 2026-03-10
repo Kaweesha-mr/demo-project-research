@@ -67,6 +67,7 @@ public class TaskApiController {
         return ResponseEntity.ok(taskService.changeStatus(id, status));
     }
 
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
