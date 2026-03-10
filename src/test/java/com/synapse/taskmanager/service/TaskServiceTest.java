@@ -16,6 +16,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -223,5 +227,227 @@ class TaskServiceTest {
 
         assertThat(results).hasSize(1);
         verify(taskRepository).searchByKeyword("synapse");
+    }
+
+    @Test
+    @DisplayName("searchTasks returns empty list when no match found")
+    void searchTasks_returnsEmptyWhenNoMatch() {
+        when(taskRepository.searchByKeyword("xyznotfound")).thenReturn(List.of());
+
+        List<TaskDTO> results = taskService.searchTasks("xyznotfound");
+
+        assertThat(results).isEmpty();
+        verify(taskRepository).searchByKeyword("xyznotfound");
+    }
+
+    // ── getTasksByStatus ──────────────────────────────────────────────────────
+
+    @Nested
+    @DisplayName("getTasksByStatus")
+    class GetTasksByStatus {
+
+        @ParameterizedTest(name = "returns tasks for status {0}")
+        @EnumSource(TaskStatus.class)
+        @DisplayName("returns tasks for every valid status")
+        void returnsTasksForEveryStatus(TaskStatus status) {
+            Task task = Task.builder().id(1L).title("T").status(status).priority(Priority.LOW).build();
+            when(taskRepository.findByStatus(status)).thenReturn(List.of(task));
+
+            List<TaskDTO> result = taskService.getTasksByStatus(status);
+
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getStatus()).isEqualTo(status);
+        }
+
+        @Test
+        @DisplayName("returns empty list when no tasks match status")
+        void returnsEmptyList() {
+            when(taskRepository.findByStatus(TaskStatus.CANCELLED)).thenReturn(List.of());
+
+            assertThat(taskService.getTasksByStatus(TaskStatus.CANCELLED)).isEmpty();
+        }
+    }
+
+    // ── getTasksByPriority ────────────────────────────────────────────────────
+
+    @Nested
+    @DisplayName("getTasksByPriority")
+    class GetTasksByPriority {
+
+        @ParameterizedTest(name = "returns tasks for priority {0}")
+        @EnumSource(Priority.class)
+        @DisplayName("returns tasks for every valid priority")
+        void returnsTasksForEveryPriority(Priority priority) {
+            Task task = Task.builder().id(1L).title("T").status(TaskStatus.TODO).priority(priority).build();
+            when(taskRepository.findByPriority(priority)).thenReturn(List.of(task));
+
+            List<TaskDTO> result = taskService.getTasksByPriority(priority);
+
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getPriority()).isEqualTo(priority);
+        }
+
+        @Test
+        @DisplayName("returns empty list when no tasks match priority")
+        void returnsEmptyList() {
+            when(taskRepository.findByPriority(Priority.CRITICAL)).thenReturn(List.of());
+
+            assertThat(taskService.getTasksByPriority(Priority.CRITICAL)).isEmpty();
+        }
+    }
+
+    // ── updateTask – field-level coverage ─────────────────────────────────────
+
+    @Nested
+    @DisplayName("updateTask field coverage")
+    class UpdateTaskFieldCoverage {
+
+        @Test
+        @DisplayName("updateTask updates title when provided")
+        void updatesTitle() {
+            UpdateTaskRequest req = new UpdateTaskRequest();
+            req.setTitle("Renamed task");
+
+            when(taskRepository.findById(1L)).thenReturn(Optional.of(sampleTask));
+            when(taskRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+
+            TaskDTO result = taskService.updateTask(1L, req);
+
+            assertThat(result.getTitle()).isEqualTo("Renamed task");
+        }
+
+        @Test
+        @DisplayName("updateTask does not overwrite title when new title is blank")
+        void doesNotOverwriteBlankTitle() {
+            UpdateTaskRequest req = new UpdateTaskRequest();
+            req.setTitle("   ");   // blank – should be ignored
+
+            when(taskRepository.findById(1L)).thenReturn(Optional.of(sampleTask));
+            when(taskRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+
+            TaskDTO result = taskService.updateTask(1L, req);
+
+            assertThat(result.getTitle()).isEqualTo("Fix pipeline bug");
+        }
+
+        @Test
+        @DisplayName("updateTask updates assignedTo when provided")
+        void updatesAssignedTo() {
+            UpdateTaskRequest req = new UpdateTaskRequest();
+            req.setAssignedTo("newowner@synapse.io");
+
+            when(taskRepository.findById(1L)).thenReturn(Optional.of(sampleTask));
+            when(taskRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+
+            TaskDTO result = taskService.updateTask(1L, req);
+
+            assertThat(result.getAssignedTo()).isEqualTo("newowner@synapse.io");
+        }
+
+        @Test
+        @DisplayName("updateTask updates description when provided")
+        void updatesDescription() {
+            UpdateTaskRequest req = new UpdateTaskRequest();
+            req.setDescription("Updated description");
+
+            when(taskRepository.findById(1L)).thenReturn(Optional.of(sampleTask));
+            when(taskRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+
+            TaskDTO result = taskService.updateTask(1L, req);
+
+            assertThat(result.getDescription()).isEqualTo("Updated description");
+        }
+    }
+
+    // ── changeStatus – all transitions ────────────────────────────────────────
+
+    @Nested
+    @DisplayName("changeStatus transitions")
+    class ChangeStatusTransitions {
+
+        @ParameterizedTest(name = "transitions to {0}")
+        @EnumSource(TaskStatus.class)
+        @DisplayName("can transition to any status")
+        void canTransitionToAnyStatus(TaskStatus target) {
+            when(taskRepository.findById(1L)).thenReturn(Optional.of(sampleTask));
+            when(taskRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+
+            TaskDTO result = taskService.changeStatus(1L, target);
+
+            assertThat(result.getStatus()).isEqualTo(target);
+        }
+
+        @Test
+        @DisplayName("changeStatus throws EntityNotFoundException when task missing")
+        void throwsWhenTaskMissing() {
+            when(taskRepository.findById(88L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> taskService.changeStatus(88L, TaskStatus.DONE))
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessageContaining("88");
+        }
+    }
+
+    // ── getTaskStatistics – zero counts ──────────────────────────────────────
+
+    @Test
+    @DisplayName("getTaskStatistics contains all status keys")
+    void getTaskStatistics_containsAllKeys() {
+        when(taskRepository.count()).thenReturn(0L);
+        for (TaskStatus s : TaskStatus.values()) {
+            when(taskRepository.countByStatus(s)).thenReturn(0L);
+        }
+
+        Map<String, Long> stats = taskService.getTaskStatistics();
+
+        assertThat(stats).containsKey("total");
+        for (TaskStatus s : TaskStatus.values()) {
+            assertThat(stats).containsKey(s.name().toLowerCase());
+        }
+    }
+
+    // ── createTask – status is always TODO ────────────────────────────────────
+
+    @Test
+    @DisplayName("createTask always sets initial status to TODO")
+    void createTask_statusIsAlwaysTodo() {
+        CreateTaskRequest req = new CreateTaskRequest();
+        req.setTitle("Status check task");
+        req.setPriority(Priority.LOW);
+
+        when(taskRepository.save(argThat(t -> t.getStatus() == TaskStatus.TODO)))
+                .thenReturn(sampleTask);
+
+        taskService.createTask(req);
+
+        verify(taskRepository).save(argThat(t -> t.getStatus() == TaskStatus.TODO));
+    }
+
+    // ── getAllTasks – DTO field mapping ───────────────────────────────────────
+
+    @Test
+    @DisplayName("getAllTasks maps all DTO fields from entity")
+    void getAllTasks_mapsDtoFields() {
+        LocalDateTime fixedTime = LocalDateTime.of(2026, 3, 10, 9, 0);
+        Task detailed = Task.builder()
+                .id(7L)
+                .title("Detailed task")
+                .description("Some desc")
+                .status(TaskStatus.IN_PROGRESS)
+                .priority(Priority.CRITICAL)
+                .assignedTo("ops@synapse.io")
+                .createdAt(fixedTime)
+                .updatedAt(fixedTime)
+                .build();
+        when(taskRepository.findAll()).thenReturn(List.of(detailed));
+
+        List<TaskDTO> result = taskService.getAllTasks();
+
+        TaskDTO dto = result.get(0);
+        assertThat(dto.getId()).isEqualTo(7L);
+        assertThat(dto.getDescription()).isEqualTo("Some desc");
+        assertThat(dto.getAssignedTo()).isEqualTo("ops@synapse.io");
+        assertThat(dto.getCreatedAt()).isEqualTo(fixedTime);
+        assertThat(dto.getUpdatedAt()).isEqualTo(fixedTime);
     }
 }
