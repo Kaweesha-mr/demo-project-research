@@ -2,10 +2,12 @@ package com.synapse.taskmanager.integration;
 
 import com.synapse.taskmanager.dto.CreateTaskRequest;
 import com.synapse.taskmanager.dto.TaskDTO;
+import com.synapse.taskmanager.dto.UpdateTaskRequest;
 import com.synapse.taskmanager.model.Priority;
 import com.synapse.taskmanager.model.TaskStatus;
 import com.synapse.taskmanager.repository.TaskRepository;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
@@ -34,6 +37,15 @@ class TaskIntegrationTest {
 
     @Autowired
     private TaskRepository taskRepository;
+
+    /**
+     * Java's HttpURLConnection does not support PATCH; swap to Apache HttpClient 5
+     * which supports all HTTP methods.
+     */
+    @BeforeEach
+    void configureHttpClient() {
+        restTemplate.getRestTemplate().setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+    }
 
     @AfterEach
     void cleanup() {
