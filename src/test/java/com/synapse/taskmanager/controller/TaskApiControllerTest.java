@@ -60,7 +60,6 @@ class TaskApiControllerTest {
     }
 
     // ── GET /api/tasks ────────────────────────────────────────────────────────
-
     @Test
     @DisplayName("GET /api/tasks returns 200 with list")
     void getAllTasks_returns200() throws Exception {
@@ -95,7 +94,6 @@ class TaskApiControllerTest {
     }
 
     // ── GET /api/tasks/{id} ───────────────────────────────────────────────────
-
     @Test
     @DisplayName("GET /api/tasks/{id} returns 200 for existing task")
     void getTask_returns200() throws Exception {
@@ -119,7 +117,6 @@ class TaskApiControllerTest {
     }
 
     // ── POST /api/tasks ───────────────────────────────────────────────────────
-
     @Test
     @DisplayName("POST /api/tasks returns 201 with created task")
     void createTask_returns201() throws Exception {
@@ -130,8 +127,8 @@ class TaskApiControllerTest {
         when(taskService.createTask(any(CreateTaskRequest.class))).thenReturn(sampleDTO);
 
         mockMvc.perform(post("/api/tasks")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1));
     }
@@ -143,14 +140,13 @@ class TaskApiControllerTest {
         req.setTitle("");  // blank
 
         mockMvc.perform(post("/api/tasks")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors.title").exists());
     }
 
     // ── PATCH /api/tasks/{id}/status ──────────────────────────────────────────
-
     @Test
     @DisplayName("PATCH /api/tasks/{id}/status updates status")
     void changeStatus_returns200() throws Exception {
@@ -166,7 +162,6 @@ class TaskApiControllerTest {
     }
 
     // ── DELETE /api/tasks/{id} ────────────────────────────────────────────────
-
     @Test
     @DisplayName("DELETE /api/tasks/{id} returns 204")
     void deleteTask_returns204() throws Exception {
@@ -187,7 +182,6 @@ class TaskApiControllerTest {
     }
 
     // ── GET /api/tasks/stats ──────────────────────────────────────────────────
-
     @Test
     @DisplayName("GET /api/tasks/stats returns statistics")
     void getStats_returns200() throws Exception {
@@ -199,7 +193,6 @@ class TaskApiControllerTest {
     }
 
     // ── GET /api/tasks – empty list ───────────────────────────────────────────
-
     @Test
     @DisplayName("GET /api/tasks returns empty array when no tasks exist")
     void getAllTasks_returnsEmptyArray() throws Exception {
@@ -212,7 +205,6 @@ class TaskApiControllerTest {
     }
 
     // ── GET /api/tasks?priority=HIGH ──────────────────────────────────────────
-
     @Test
     @DisplayName("GET /api/tasks?priority=HIGH filters by priority")
     void getAllTasks_filterByPriority() throws Exception {
@@ -237,7 +229,6 @@ class TaskApiControllerTest {
     }
 
     // ── GET /api/tasks – search returns empty ─────────────────────────────────
-
     @Test
     @DisplayName("GET /api/tasks?search=noresult returns empty list")
     void getAllTasks_searchReturnsEmpty() throws Exception {
@@ -249,7 +240,6 @@ class TaskApiControllerTest {
     }
 
     // ── GET /api/tasks/{id} – response body fields ────────────────────────────
-
     @Test
     @DisplayName("GET /api/tasks/{id} returns all expected fields")
     void getTask_returnsAllFields() throws Exception {
@@ -266,7 +256,6 @@ class TaskApiControllerTest {
     }
 
     // ── POST /api/tasks – full field mapping ─────────────────────────────────
-
     @Test
     @DisplayName("POST /api/tasks sends all request fields correctly")
     void createTask_sendsAllFields() throws Exception {
@@ -279,8 +268,8 @@ class TaskApiControllerTest {
         when(taskService.createTask(any())).thenReturn(sampleDTO);
 
         mockMvc.perform(post("/api/tasks")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists());
     }
@@ -293,7 +282,6 @@ class TaskApiControllerTest {
     }
 
     // ── PUT /api/tasks/{id} ───────────────────────────────────────────────────
-
     @Nested
     @DisplayName("PUT /api/tasks/{id}")
     class UpdateTask {
@@ -312,8 +300,8 @@ class TaskApiControllerTest {
             when(taskService.updateTask(eq(1L), any(UpdateTaskRequest.class))).thenReturn(updated);
 
             mockMvc.perform(put("/api/tasks/1")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(req)))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.title").value("Updated title"))
                     .andExpect(jsonPath("$.status").value("IN_PROGRESS"));
@@ -326,15 +314,14 @@ class TaskApiControllerTest {
                     .thenThrow(new EntityNotFoundException("Task not found with id: 99"));
 
             mockMvc.perform(put("/api/tasks/99")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("{}"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{}"))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.message").value("Task not found with id: 99"));
         }
     }
 
     // ── PATCH /api/tasks/{id}/status – all status values ─────────────────────
-
     @ParameterizedTest(name = "PATCH status to {0}")
     @EnumSource(TaskStatus.class)
     @DisplayName("PATCH /api/tasks/{id}/status works for every status value")
@@ -356,7 +343,6 @@ class TaskApiControllerTest {
     }
 
     // ── GET /api/tasks/stats – all keys present ───────────────────────────────
-
     @Test
     @DisplayName("GET /api/tasks/stats response contains all expected keys")
     void getStats_containsAllKeys() throws Exception {

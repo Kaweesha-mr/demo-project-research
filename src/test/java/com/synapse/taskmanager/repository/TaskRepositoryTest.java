@@ -36,7 +36,6 @@ class TaskRepositoryTest {
     }
 
     // ── Basic CRUD ─────────────────────────────────────────────────────────────
-
     @Nested
     @DisplayName("Basic CRUD")
     class BasicCrud {
@@ -101,7 +100,6 @@ class TaskRepositoryTest {
     }
 
     // ── findByStatus ──────────────────────────────────────────────────────────
-
     @Nested
     @DisplayName("findByStatus")
     class FindByStatus {
@@ -143,7 +141,6 @@ class TaskRepositoryTest {
     }
 
     // ── findByPriority ────────────────────────────────────────────────────────
-
     @Nested
     @DisplayName("findByPriority")
     class FindByPriority {
@@ -171,7 +168,6 @@ class TaskRepositoryTest {
     }
 
     // ── findByAssignedTo ──────────────────────────────────────────────────────
-
     @Nested
     @DisplayName("findByAssignedTo")
     class FindByAssignedTo {
@@ -198,7 +194,6 @@ class TaskRepositoryTest {
     }
 
     // ── searchByKeyword ───────────────────────────────────────────────────────
-
     @Nested
     @DisplayName("searchByKeyword")
     class SearchByKeyword {
@@ -242,7 +237,6 @@ class TaskRepositoryTest {
     }
 
     // ── countByStatus ─────────────────────────────────────────────────────────
-
     @Nested
     @DisplayName("countByStatus")
     class CountByStatus {
@@ -280,7 +274,6 @@ class TaskRepositoryTest {
     }
 
     // ── Timestamps ────────────────────────────────────────────────────────────
-
     @Nested
     @DisplayName("Timestamps")
     class Timestamps {

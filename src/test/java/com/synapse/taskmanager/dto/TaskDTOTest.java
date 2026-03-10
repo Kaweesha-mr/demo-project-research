@@ -15,7 +15,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TaskDTOTest {
 
     // ── fromEntity mapping ────────────────────────────────────────────────────
-
     @Nested
     @DisplayName("fromEntity")
     class FromEntity {
@@ -98,7 +97,6 @@ class TaskDTOTest {
     }
 
     // ── Builder ───────────────────────────────────────────────────────────────
-
     @Nested
     @DisplayName("Builder")
     class BuilderTests {

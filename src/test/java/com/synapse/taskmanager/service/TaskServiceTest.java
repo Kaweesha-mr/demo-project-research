@@ -56,7 +56,6 @@ class TaskServiceTest {
     }
 
     // ── getAllTasks ───────────────────────────────────────────────────────────
-
     @Test
     @DisplayName("getAllTasks returns list of TaskDTOs")
     void getAllTasks_returnsList() {
@@ -78,7 +77,6 @@ class TaskServiceTest {
     }
 
     // ── getTaskById ───────────────────────────────────────────────────────────
-
     @Test
     @DisplayName("getTaskById returns correct task")
     void getTaskById_returnsTask() {
@@ -103,7 +101,6 @@ class TaskServiceTest {
     }
 
     // ── createTask ────────────────────────────────────────────────────────────
-
     @Test
     @DisplayName("createTask persists and returns new task")
     void createTask_persists() {
@@ -137,7 +134,6 @@ class TaskServiceTest {
     }
 
     // ── updateTask ────────────────────────────────────────────────────────────
-
     @Test
     @DisplayName("updateTask applies partial updates correctly")
     void updateTask_partialUpdate() {
@@ -150,9 +146,9 @@ class TaskServiceTest {
 
         taskService.updateTask(1L, req);
 
-        verify(taskRepository).save(argThat(t ->
-                t.getStatus() == TaskStatus.IN_PROGRESS &&
-                t.getPriority() == Priority.CRITICAL));
+        verify(taskRepository).save(argThat(t
+                -> t.getStatus() == TaskStatus.IN_PROGRESS
+                && t.getPriority() == Priority.CRITICAL));
     }
 
     @Test
@@ -164,7 +160,6 @@ class TaskServiceTest {
     }
 
     // ── changeStatus ──────────────────────────────────────────────────────────
-
     @Test
     @DisplayName("changeStatus updates status correctly")
     void changeStatus_updatesStatus() {
@@ -177,7 +172,6 @@ class TaskServiceTest {
     }
 
     // ── deleteTask ────────────────────────────────────────────────────────────
-
     @Test
     @DisplayName("deleteTask successfully deletes existing task")
     void deleteTask_success() {
@@ -198,7 +192,6 @@ class TaskServiceTest {
     }
 
     // ── getTaskStatistics ─────────────────────────────────────────────────────
-
     @Test
     @DisplayName("getTaskStatistics returns correct counts per status")
     void getTaskStatistics_returnsCounts() {
@@ -217,7 +210,6 @@ class TaskServiceTest {
     }
 
     // ── searchTasks ───────────────────────────────────────────────────────────
-
     @Test
     @DisplayName("searchTasks delegates to repository and maps results")
     void searchTasks_delegatesToRepository() {
@@ -241,7 +233,6 @@ class TaskServiceTest {
     }
 
     // ── getTasksByStatus ──────────────────────────────────────────────────────
-
     @Nested
     @DisplayName("getTasksByStatus")
     class GetTasksByStatus {
@@ -269,7 +260,6 @@ class TaskServiceTest {
     }
 
     // ── getTasksByPriority ────────────────────────────────────────────────────
-
     @Nested
     @DisplayName("getTasksByPriority")
     class GetTasksByPriority {
@@ -297,7 +287,6 @@ class TaskServiceTest {
     }
 
     // ── updateTask – field-level coverage ─────────────────────────────────────
-
     @Nested
     @DisplayName("updateTask field coverage")
     class UpdateTaskFieldCoverage {
@@ -360,7 +349,6 @@ class TaskServiceTest {
     }
 
     // ── changeStatus – all transitions ────────────────────────────────────────
-
     @Nested
     @DisplayName("changeStatus transitions")
     class ChangeStatusTransitions {
@@ -389,7 +377,6 @@ class TaskServiceTest {
     }
 
     // ── getTaskStatistics – zero counts ──────────────────────────────────────
-
     @Test
     @DisplayName("getTaskStatistics contains all status keys")
     void getTaskStatistics_containsAllKeys() {
@@ -407,7 +394,6 @@ class TaskServiceTest {
     }
 
     // ── createTask – status is always TODO ────────────────────────────────────
-
     @Test
     @DisplayName("createTask always sets initial status to TODO")
     void createTask_statusIsAlwaysTodo() {
@@ -424,7 +410,6 @@ class TaskServiceTest {
     }
 
     // ── getAllTasks – DTO field mapping ───────────────────────────────────────
-
     @Test
     @DisplayName("getAllTasks maps all DTO fields from entity")
     void getAllTasks_mapsDtoFields() {

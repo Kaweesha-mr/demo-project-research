@@ -35,7 +35,6 @@ class GlobalExceptionHandlerTest {
     private TaskService taskService;
 
     // ── EntityNotFoundException → 404 ─────────────────────────────────────────
-
     @Nested
     @DisplayName("EntityNotFoundException handling")
     class EntityNotFoundHandling {
@@ -79,7 +78,6 @@ class GlobalExceptionHandlerTest {
     }
 
     // ── MethodArgumentNotValidException → 400 ────────────────────────────────
-
     @Nested
     @DisplayName("Validation error handling")
     class ValidationErrorHandling {
@@ -91,8 +89,8 @@ class GlobalExceptionHandlerTest {
             req.setTitle("");
 
             mockMvc.perform(post("/api/tasks")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(req)))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.status").value(400))
                     .andExpect(jsonPath("$.error").value("Validation Failed"))
@@ -104,8 +102,8 @@ class GlobalExceptionHandlerTest {
         @DisplayName("POST with null title returns 400 with fieldErrors")
         void postNullTitle_returns400WithFieldErrors() throws Exception {
             mockMvc.perform(post("/api/tasks")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"title\": null}"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"title\": null}"))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.fieldErrors.title").exists());
         }
@@ -117,8 +115,8 @@ class GlobalExceptionHandlerTest {
             req.setTitle("   ");
 
             mockMvc.perform(post("/api/tasks")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(req)))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.fieldErrors.title").exists());
         }
@@ -130,15 +128,14 @@ class GlobalExceptionHandlerTest {
             req.setTitle("A".repeat(300));   // exceeds @Size(max = 255)
 
             mockMvc.perform(post("/api/tasks")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(req)))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(req)))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.fieldErrors.title").exists());
         }
     }
 
     // ── Generic Exception → 500 ───────────────────────────────────────────────
-
     @Nested
     @DisplayName("Generic exception handling")
     class GenericExceptionHandling {
